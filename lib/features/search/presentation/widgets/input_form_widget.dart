@@ -1,4 +1,7 @@
+import 'package:effective_mobile/features/search/presentation/cubit/texts_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/styles/colors.dart';
 import '../../../../core/env/images_and_icons_path.dart';
@@ -23,24 +26,22 @@ class InputFormWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           color: StaticColors.grey_3,
-          child: const Padding(
-            padding: EdgeInsets.all(4),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
             child: Row(
               children: [
-                ReturnIconWidget(
-                  staticColor: StaticColors.white,
+                InkWell(
+                  onTap: () {
+                    context.pop();
+                  },
+                  child: const ReturnIconWidget(
+                    staticColor: StaticColors.white,
+                  ),
                 ),
-                Expanded(
+                const Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextFromWidget(),
-                        DividerInputTextWidget(),
-                        TextToWidget(),
-                      ],
-                    ),
+                    child: InputForm(),
                   ),
                 ),
               ],
@@ -48,6 +49,52 @@ class InputFormWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class InputForm extends StatefulWidget {
+  const InputForm({
+    super.key,
+  });
+
+  @override
+  State<InputForm> createState() => _InputFormState();
+}
+
+class _InputFormState extends State<InputForm> {
+  @override
+  void initState() {
+    context.read<TextsCubit>().setInitial(context);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<TextsCubit, TextsState>(
+      listener: (context, state) {
+        if (state is TextsLoaded) {
+          setState(() {});
+        }
+      },
+      builder: (context, state) {
+        if (state is TextsLoaded) {
+          // ignore: prefer_const_constructors
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            // ignore: prefer_const_literals_to_create_immutables
+            children: [
+              // ignore: prefer_const_constructors
+              TextFromWidget(),
+              const DividerInputTextWidget(),
+              // ignore: prefer_const_constructors
+              TextToWidget(),
+            ],
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 }
@@ -65,7 +112,7 @@ class TextToWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Сочи",
+              (context.read<TextsCubit>().state as TextsLoaded).textTo,
               style: StaticTextStyles.buttonText1
                   .copyWith(color: StaticColors.white),
             ),
@@ -90,12 +137,14 @@ class TextFromWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "Москва",
+            (context.read<TextsCubit>().state as TextsLoaded).textFrom,
             style: StaticTextStyles.buttonText1
                 .copyWith(color: StaticColors.white),
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              context.read<TextsCubit>().change();
+            },
             borderRadius: BorderRadius.circular(16),
             child: const ChangeIconWidget(
               staticColor: StaticColors.white,

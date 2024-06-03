@@ -1,4 +1,7 @@
+import 'package:effective_mobile/features/search/presentation/cubit/search_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/styles/colors.dart';
 import '../../../../core/env/images_and_icons_path.dart';
@@ -19,60 +22,167 @@ class ChipButtonsWidget extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           shrinkWrap: true,
           children: [
-            CustomCard(
-              onTap: () {},
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.0),
-                    child: ProfileIconWidget(staticColor: StaticColors.grey_5),
-                  ),
-                  Text(
-                    "1, эконом",
-                    style: StaticTextStyles.title4
-                        .copyWith(color: StaticColors.white),
-                  ),
-                ],
-              ),
-            ),
-            CustomCard(
-              onTap: () {},
-              child: Row(
-                children: [
-                  const AddIconWidget(
-                    staticColor: StaticColors.white,
-                  ),
-                  Text(
-                    "обратно",
-                    style: StaticTextStyles.title4
-                        .copyWith(color: StaticColors.white),
-                  ),
-                ],
-              ),
-            ),
-            CustomCard(
-              onTap: () {},
-              child: Row(
-                children: [
-                  Text(
-                    "24 фев, ",
-                    style: StaticTextStyles.title4
-                        .copyWith(color: StaticColors.white),
-                  ),
-                  Text(
-                    "cб",
-                    style: StaticTextStyles.title4
-                        .copyWith(color: StaticColors.grey_6),
-                  ),
-                ],
-              ),
-            ),
-            CustomCard(
-              onTap: () {},
-              child: const FiltrIconWidget(staticColor: StaticColors.white),
-            ),
+            ReturnDate(),
+            const CountPeople(),
+            GoDate(),
+            const FlitrWidget(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class FlitrWidget extends StatelessWidget {
+  const FlitrWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomCard(
+      onTap: () {},
+      child: const FiltrIconWidget(staticColor: StaticColors.white),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class GoDate extends StatefulWidget {
+  String day =
+      DateFormat('d MMM', 'ru').format(DateTime.now()).replaceFirst('.', ',');
+  String weekday = DateFormat('E', 'ru').format(DateTime.now());
+  GoDate({super.key});
+
+  @override
+  State<GoDate> createState() => _GoDateState();
+}
+
+class _GoDateState extends State<GoDate> {
+  @override
+  Widget build(BuildContext context) {
+    return CustomCard(
+      onTap: () async {
+        final selectedDate = await showDate(context);
+        if (selectedDate != null) {
+          // ignore: use_build_context_synchronously
+          context.read<SearchCubit>().toDate = selectedDate;
+          widget.day = DateFormat('d MMM', 'ru')
+              .format(selectedDate)
+              .replaceFirst('.', ',');
+          widget.weekday = DateFormat('E', 'ru').format(selectedDate);
+          setState(() {
+            
+          });
+        }
+      },
+      child: Row(
+        children: [
+          Text(
+            widget.day,
+            style: StaticTextStyles.title4.copyWith(color: StaticColors.white),
+          ),
+          Text(
+            widget.weekday,
+            style: StaticTextStyles.title4.copyWith(color: StaticColors.grey_6),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<DateTime?> showDate(BuildContext context) {
+  return showDatePicker(
+    context: context,
+    initialDate: context.read<SearchCubit>().toDate ?? DateTime.now(),
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2101),
+    locale: const Locale('ru'),
+  );
+}
+
+// ignore: must_be_immutable
+class ReturnDate extends StatefulWidget {
+  String day =
+      DateFormat('d MMM', 'ru').format(DateTime.now()).replaceFirst('.', ',');
+  String weekday = DateFormat('E', 'ru').format(DateTime.now());
+  ReturnDate({
+    super.key,
+  });
+
+  @override
+  State<ReturnDate> createState() => _ReturnDateState();
+}
+
+class _ReturnDateState extends State<ReturnDate> {
+  @override
+  Widget build(BuildContext context) {
+    return CustomCard(
+      onTap: () async {
+        context.read<SearchCubit>().returnDate = await showDate(context);
+        setState(() {
+          if (context.read<SearchCubit>().returnDate != null) {
+            widget.day = DateFormat('d MMM', 'ru')
+                .format(context.read<SearchCubit>().returnDate!)
+                .replaceFirst('.', ',');
+            widget.weekday = DateFormat('E', 'ru')
+                .format(context.read<SearchCubit>().returnDate!);
+          }
+        });
+        //context.read<SearchCubit>().setReturnDate() = await showDate(context);
+      },
+      child: Row(
+        children: [
+          const AddIconWidget(
+            staticColor: StaticColors.white,
+          ),
+          context.read<SearchCubit>().returnDate == null
+              ? Text(
+                  "обратно",
+                  style: StaticTextStyles.title4
+                      .copyWith(color: StaticColors.white),
+                )
+              : Row(
+                  children: [
+                    Text(
+                      widget.day,
+                      style: StaticTextStyles.title4
+                          .copyWith(color: StaticColors.white),
+                    ),
+                    Text(
+                      widget.weekday,
+                      style: StaticTextStyles.title4
+                          .copyWith(color: StaticColors.grey_6),
+                    ),
+                  ],
+                ),
+        ],
+      ),
+    );
+  }
+}
+
+class CountPeople extends StatelessWidget {
+  const CountPeople({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomCard(
+      onTap: () async {},
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            child: ProfileIconWidget(staticColor: StaticColors.grey_5),
+          ),
+          Text(
+            "1, эконом",
+            style: StaticTextStyles.title4.copyWith(color: StaticColors.white),
+          ),
+        ],
       ),
     );
   }

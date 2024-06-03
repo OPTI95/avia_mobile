@@ -8,3 +8,17 @@ abstract class SearchState extends Equatable {
 }
 
 class SearchInitial extends SearchState {}
+
+class SearchLoading extends SearchState {}
+
+class SearchLoaded extends SearchState {
+  final List<Search> list;
+
+  const SearchLoaded({required this.list});
+}
+
+class SearchError extends SearchState {
+  final String error;
+
+  const SearchError({required this.error});
+}

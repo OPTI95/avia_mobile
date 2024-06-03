@@ -1,5 +1,8 @@
 import 'package:effective_mobile/core/styles/colors.dart';
+import 'package:effective_mobile/features/home/presentation/cubit/from_text_cubit.dart';
+import 'package:effective_mobile/features/home/presentation/cubit/to_text_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/env/constant_text.dart';
@@ -56,11 +59,19 @@ class FromInputWidget extends StatelessWidget {
         const PlaneIconWidget(
           staticColor: StaticColors.grey_6,
         ),
-        Text(
-          "Минск",
-          style:
-              StaticTextStyles.buttonText1.copyWith(color: StaticColors.white),
-        )
+        BlocBuilder<FromTextCubit, FromTextState>(
+          builder: (context, state) {
+            String text = "";
+            if (state is FromTextLoaded) {
+              text = state.text ?? "";
+            }
+            return Text(
+              text,
+              style: StaticTextStyles.buttonText1
+                  .copyWith(color: StaticColors.white),
+            );
+          },
+        ),
       ],
     );
   }
@@ -75,24 +86,36 @@ class ToInputTextFieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 24,
-      child: TextField(
-        onSubmitted: (val) {
-          context.goNamed("search");
+      child: BlocBuilder<ToTextCubit, String>(
+        builder: (context, state) {
+          final textCubit = context.read<ToTextCubit>();
+          
+          return TextField(
+            controller: textCubit.textController,
+            onSubmitted: (val) {
+              textCubit.addText(val);
+              context.goNamed("search");
+            },
+            style: StaticTextStyles.buttonText1
+                .copyWith(color: StaticColors.white),
+            decoration: InputDecoration(
+              prefixIconConstraints: BoxConstraints.tight(const Size(30, 20)),
+              prefixIcon:
+                  const SearchIconWidget(staticColor: StaticColors.white),
+              hintText: StaticTexts.hintTextTo,
+              hintStyle: StaticTextStyles.buttonText1
+                  .copyWith(color: StaticColors.grey_6),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 5.0),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  textCubit.clearText();
+                },
+                icon: const ClearIconWidget(staticColor: StaticColors.grey_6),
+              ),
+            ),
+          );
         },
-        style: StaticTextStyles.buttonText1.copyWith(color: StaticColors.white),
-        decoration: InputDecoration(
-          prefixIconConstraints: BoxConstraints.tight(const Size(30, 20)),
-          prefixIcon: const SearchIconWidget(staticColor: StaticColors.white),
-          hintText: StaticTexts.hintTextTo,
-          hintStyle:
-              StaticTextStyles.buttonText1.copyWith(color: StaticColors.grey_6),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 5.0),
-          suffixIcon: IconButton(
-            onPressed: () {},
-            icon: const ClearIconWidget(staticColor: StaticColors.grey_6),
-          ),
-        ),
       ),
     );
   }

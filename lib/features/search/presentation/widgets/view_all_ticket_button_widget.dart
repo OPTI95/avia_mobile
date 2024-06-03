@@ -1,5 +1,7 @@
 import 'package:effective_mobile/core/styles/colors.dart';
+import 'package:effective_mobile/features/search/presentation/cubit/search_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/env/constant_text.dart';
 import '../../../../core/styles/text_styles.dart';
@@ -17,7 +19,11 @@ class ViewAllTicketButtonWidget extends StatelessWidget {
         height: 42,
         child: ElevatedButton(
           onPressed: () {
-            context.goNamed("ticket");
+            if (context.read<SearchCubit>().toDate == null) {
+
+            } else {
+              context.goNamed("ticket");
+            }
           },
           style: ButtonStyle(
             backgroundColor: const WidgetStatePropertyAll(StaticColors.blue),

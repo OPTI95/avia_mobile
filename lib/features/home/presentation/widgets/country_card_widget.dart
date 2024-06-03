@@ -1,10 +1,13 @@
 import 'package:effective_mobile/core/env/constant_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/styles/colors.dart';
 import '../../../../core/env/images_and_icons_path.dart';
 import '../../../../core/styles/text_styles.dart';
 import '../../domain/entities/country.dart';
+import '../cubit/to_text_cubit.dart';
 
 class CountryCardWidget extends StatelessWidget {
   final List<Country> list = [
@@ -54,7 +57,6 @@ class DividerForCounrty extends StatelessWidget {
   }
 }
 
-
 class CountryWidget extends StatelessWidget {
   final String name;
   final String photoPath;
@@ -67,7 +69,12 @@ class CountryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () async {
+        final textCubit = context.read<ToTextCubit>();
+        textCubit.addText(name);
+        await Future.delayed(Duration(seconds: 3))
+            .whenComplete(() => context.goNamed("search"));
+      },
       child: Row(
         children: [
           PhotoCounryWidget(photoPath: photoPath),
@@ -96,8 +103,7 @@ class PhotoCounryWidget extends StatelessWidget {
       height: 50,
       child: Card(
         clipBehavior: Clip.hardEdge,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: Image.asset(
           photoPath,
           fit: BoxFit.cover,
@@ -122,13 +128,11 @@ class NameCountryWidget extends StatelessWidget {
       children: [
         Text(
           name,
-          style:
-              StaticTextStyles.title3.copyWith(color: StaticColors.white),
+          style: StaticTextStyles.title3.copyWith(color: StaticColors.white),
         ),
         Text(
           StaticTexts.popularityDirection,
-          style:
-              StaticTextStyles.text2.copyWith(color: StaticColors.grey_5),
+          style: StaticTextStyles.text2.copyWith(color: StaticColors.grey_5),
         )
       ],
     );

@@ -1,4 +1,6 @@
+import 'package:effective_mobile/features/search/presentation/cubit/search_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/styles/colors.dart';
 import '../../../../core/env/constant_text.dart';
@@ -13,7 +15,7 @@ class TicketsAirLinesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 290,
+      height: 300,
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: StaticColors.grey_3,
@@ -27,14 +29,32 @@ class TicketsAirLinesWidget extends StatelessWidget {
                 style:
                     StaticTextStyles.title2.copyWith(color: StaticColors.white),
               ),
-              Expanded(
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemCount: 3,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) =>
-                      const TicketAirLinesCardWidget(),
-                ),
+              BlocBuilder<SearchCubit, SearchState>(
+                builder: (context, state) {
+                  if (state is SearchLoaded) {
+                    return Expanded(
+                      child: ListView.separated(
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemCount:
+                            (context.read<SearchCubit>().state as SearchLoaded)
+                                .list
+                                .length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) =>
+                            TicketAirLinesCardWidget(
+                          index: index,
+                        ),
+                      ),
+                    );
+                  } else if (state is SearchLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    context.read<SearchCubit>().fetchSearchTickets();
+                    return const SizedBox();
+                  }
+                },
               )
             ],
           ),
@@ -45,8 +65,10 @@ class TicketsAirLinesWidget extends StatelessWidget {
 }
 
 class TicketAirLinesCardWidget extends StatelessWidget {
+  final int index;
   const TicketAirLinesCardWidget({
     super.key,
+    required this.index,
   });
 
   @override
@@ -58,19 +80,24 @@ class TicketAirLinesCardWidget extends StatelessWidget {
       title: Row(
         children: [
           Text(
-            "Уральские авиалинии",
+            (context.read<SearchCubit>().state as SearchLoaded)
+                .list[index]
+                .title,
             style: StaticTextStyles.title4.copyWith(color: StaticColors.white),
           ),
           const Spacer(),
           Text(
-            "2390р",
+            "${context.read<SearchCubit>().formatPrice(index)} ₽",
             style: StaticTextStyles.title4.copyWith(color: StaticColors.blue),
           ),
           const NextIconWidget(staticColor: StaticColors.blue)
         ],
       ),
       subtitle: Text(
-        "07:00 09:10 10:00 11:00 12:00 13:00 12:00 14:00",
+        (context.read<SearchCubit>().state as SearchLoaded)
+            .list[index]
+            .timerange
+            .join(' '),
         softWrap: true,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
