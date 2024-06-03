@@ -124,7 +124,7 @@ class IconCardHotButtonWidget extends StatelessWidget {
           if (iconName == StaticPath.shar) {
             final textCubit = context.read<ToTextCubit>();
             textCubit.addText("Куда угодно");
-            await Future.delayed(Duration(seconds: 3))
+            await Future.delayed(const Duration(seconds: 3))
                 .whenComplete(() => context.goNamed("search"));
           } else if (iconName == StaticPath.marshrut) {
             context.goNamed("hardway");

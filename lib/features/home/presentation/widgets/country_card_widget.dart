@@ -72,7 +72,7 @@ class CountryWidget extends StatelessWidget {
       onTap: () async {
         final textCubit = context.read<ToTextCubit>();
         textCubit.addText(name);
-        await Future.delayed(Duration(seconds: 3))
+        await Future.delayed(const Duration(seconds: 3))
             .whenComplete(() => context.goNamed("search"));
       },
       child: Row(
